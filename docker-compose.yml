@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  api:
+    build: ./
+    container_name: api
+    ports:
+      - 6100:6100
+    environment:
+      - DB_USERNAME=admin
+      - DB_PASSWORD=1
+      - DB_HOST=db_auth
+      - DB_PORT=6101
+      - DB_NAME=postgres
+      - PORT=6100
+      - SECRET_KEY=SECRET_KEY
+    depends_on:
+      - db_auth
+    networks:
+      - internal_net
+
+  db_auth:
+    container_name: db_auth
+    ports:
+      - "6101:6101"
+    environment:
+      - POSTGRES_PASSWORD=1
+      - POSTGRES_USER=admin
+    image: postgres:14.3-alpine
+    command: 
+      - "postgres"
+      - "-c"
+      - "port=6101"
+    volumes:
+      - db_auth_vol:/var/lib/postgres/data/
+    networks:
+      - internal_net
+volumes:
+  db_auth_vol: {}
+networks:
+  internal_net:
+    driver: bridge
